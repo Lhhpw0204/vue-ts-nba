@@ -51,6 +51,7 @@
       }
     },
     created() {
+      document.title = "球队比较-" + this.$route.query.guestName + "vs" + this.$route.query.hostName;
       this.getQuery();
     },
     methods: {

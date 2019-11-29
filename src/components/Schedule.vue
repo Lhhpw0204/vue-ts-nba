@@ -15,8 +15,6 @@
 </template>
 
 <script>
-  import tools from "../utils/tools"
-
   export default {
     name: "Schedule",
     data() {
@@ -27,6 +25,7 @@
     },
     created() {
       this.getSchedule();
+      document.title = "赛程";
     },
     methods: {
       getSchedule() {
@@ -44,13 +43,22 @@
         let currDateParam = currYear + '-' + currMonth + '-' + currDay;
         this.scheDuleDate = currDateParam;
         this.$axios.get(`api?p=radar&p=radar&s=schedule&a=hireracy&a=date_span&date=${currDateParam}&span=1&_=` + currTime).then( res => {
-          this.scheDuleList = res.data.result.data.matchs
+          this.scheDuleList = res.data.result.data.matchs.filter( (item) => {
+            return item.date === currDateParam;
+          });
         })
       },
       gotoCompare(index) {
         let guestName = this.scheDuleList[index].away_name;
         let hostName = this.scheDuleList[index].home_name;
-        this.$router.push(`/compare?guestName=${guestName}&hostName=${hostName}`)
+        const { href } = this.$router.resolve({
+          path: 'compare',
+          query: {
+            guestName: guestName,
+            hostName: hostName
+          }
+        })
+        window.open(href, '_blank');
       }
     }
   }

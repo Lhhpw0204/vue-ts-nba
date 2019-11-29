@@ -28,6 +28,7 @@
       }
     },
     created() {
+      document.title = "首页";
       this.getAllTeamTid();
     },
     methods: {

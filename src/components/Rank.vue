@@ -57,6 +57,7 @@
       }
     },
     created() {
+      document.title = "排名";
       this.getAllTeamTid();
       this.$axios.get('/api?p=radar&p=radar&s=team_standing&a=conference&_='+ (new Date()).getTime()).then( res => {
           let tempRes = [...res.data.result.data.eastern, ...res.data.result.data.western];
