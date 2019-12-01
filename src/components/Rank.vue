@@ -7,7 +7,7 @@
           <span class="data">净胜分：</span>
         </li>
         <li v-for="(item, index) in effectRank" :key="index">
-          <span class="team" @click="goToTeam(item.team_name)">{{ index + 1 }}. {{ item.team_name }}</span>
+          <span class="team" @click="goToTeam(item.team_name)">{{ index + 1 }}. {{ item.team_name + " (" + item.wins + " - " + item.losses + ")" }}</span>
           <span class="data">{{ item.point_diff }}</span>
         </li>
       </ul>
@@ -17,7 +17,7 @@
           <span class="data">得分：</span>
         </li>
         <li v-for="(item, index) in bounsRank" :key="index">
-          <span class="team" @click="goToTeam(item.team_name)">{{ index + 1 }}. {{ item.team_name }}</span>
+          <span class="team" @click="goToTeam(item.team_name)">{{ index + 1 }}. {{ item.team_name + " (" + item.wins + " - " + item.losses + ")" }}</span>
           <span class="data">{{ item.points_for }}</span>
         </li>
       </ul>
@@ -27,7 +27,7 @@
           <span class="data">失分：</span>
         </li>
         <li v-for="(item, index) in loseRank" :key="index">
-          <span class="team" @click="goToTeam(item.team_name)">{{ index + 1 }}. {{ item.team_name }}</span>
+          <span class="team" @click="goToTeam(item.team_name)">{{ index + 1 }}. {{ item.team_name + " (" + item.wins + " - " + item.losses + ")" }}</span>
           <span class="data">{{ item.points_against }}</span>
         </li>
       </ul>
@@ -105,7 +105,7 @@
         span{
           padding-left: 10px;
           display: inline-block;
-          width: 33.33%;
+          width: 50%;
           font-size: 14px;
           &.team{
             cursor: pointer;

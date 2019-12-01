@@ -66,9 +66,10 @@
     ul {
       display: flex;
       width: 100%;
-      background: #f30;
+      background: #6750a2;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 0 10px #f3eaa3;
       li {
         padding: 7px ;
         span {

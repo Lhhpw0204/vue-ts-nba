@@ -43,9 +43,7 @@
         let currDateParam = currYear + '-' + currMonth + '-' + currDay;
         this.scheDuleDate = currDateParam;
         this.$axios.get(`api?p=radar&p=radar&s=schedule&a=hireracy&a=date_span&date=${currDateParam}&span=1&_=` + currTime).then( res => {
-          this.scheDuleList = res.data.result.data.matchs.filter( (item) => {
-            return item.date === currDateParam;
-          });
+          this.scheDuleList = res.data.result.data.matchs;
         })
       },
       gotoCompare(index) {
