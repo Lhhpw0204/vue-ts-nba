@@ -73,24 +73,28 @@
               hostData = res[1].data.result.data.reg.average;
           // guestData = guestData.sort(tools.selfSort("item"));
           // hostData = hostData.sort(tools.selfSort("item"));
-          for (let i = 0,len = guestData.length;i < len;i ++) {
-            if(guestData[i].item.indexOf("_pct") > 0) {
-              this.team_diff_data.push({
-                item: guestData[i].item,
-                guest: (guestData[i].score * 100).toFixed(2) + "%",
-                host: (hostData[i].score * 100).toFixed(2) + "%"
-              });
-            } else {
-              this.team_diff_data.push({
-                item: guestData[i].item,
-                guest: guestData[i].score,
-                host: hostData[i].score
-              })
+          for (let i = 0,iLen = guestData.length;i < iLen;i ++) {
+            for (let j = 0,jLen = hostData.length;j < jLen;j ++) {
+              if(guestData[i].item === hostData[j].item){
+                if(guestData[i].item.indexOf("_pct") > 0) {
+                  this.team_diff_data.push({
+                    item: guestData[i].item,
+                    guest: (guestData[i].score * 100).toFixed(2) + "%",
+                    host: (hostData[j].score * 100).toFixed(2) + "%"
+                  });
+                } else {
+                  this.team_diff_data.push({
+                    item: guestData[i].item,
+                    guest: guestData[i].score,
+                    host: hostData[j].score
+                  })
+                }
+              }
             }
           }
           this.team_diff_data = this.team_diff_data.filter( item => {
             return this.wordMap[item.item]
-          })
+          });
         })
       },
       getTeamTid(currTeamName ,tids) {
