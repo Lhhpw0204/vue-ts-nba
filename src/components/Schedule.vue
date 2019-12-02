@@ -1,26 +1,37 @@
 <template>
   <div class="schedule">
-    <h2 class="schedule_date">{{ scheDuleDate }}</h2>
-    <ul class="schedule_ul">
-      <li v-for="(item, index) in scheDuleList" :key="index">
-        <span class="schedule_time">{{item.time}}</span>
-        <p class="schedule_team">
-          <span class="schedule_team_away">{{item.away_name}}</span>
-          <span class="schedule_team_vs" @click="gotoCompare(index)"> —— </span>
-          <span class="schedule_team_home">{{item.home_name}}</span>
-        </p>
-      </li>
-    </ul>
+    <div  v-for="(item, index) in scheDuleList" :key="index">
+      <h2 class="schedule_date">{{ item.date }}</h2>
+      <ul class="schedule_ul">
+        <li v-for="(itemC, indexC) in item.matchs" :key="indexC">
+          <span class="schedule_time">{{itemC.time}}</span>
+          <p class="schedule_team">
+            <span :class="['schedule_team_away', itemC.away_score ? itemC.away_score > itemC.home_score ? 'schedule_win' : 'schedule_lose' : '']">
+              <span @click="goToTeamS(itemC.away_name)">{{itemC.away_name}}</span>
+              <span>{{itemC.away_score}}</span>
+            </span>
+            <span class="schedule_team_vs" @click="gotoCompare(index,indexC)"> —— </span>
+            <span :class="['schedule_team_home', itemC.away_score ? itemC.away_score > itemC.home_score ? 'schedule_lose' : 'schedule_win' : '']">
+              <span @click="goToTeamS(itemC.home_name)">{{itemC.home_name}}</span>
+              <span>{{itemC.home_score}}</span>
+            </span>
+          </p>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script>
+  import {myMixin} from "../../assets/mixins"
+
   export default {
+    mixins: [myMixin],
     name: "Schedule",
     data() {
       return {
-        scheDuleDate: "",
-        scheDuleList: []
+        scheDuleList: [],
+        scheduleSpan: 2
       }
     },
     created() {
@@ -41,14 +52,29 @@
           currDay = '0' + currDay;
         }
         let currDateParam = currYear + '-' + currMonth + '-' + currDay;
-        this.scheDuleDate = currDateParam;
-        this.$axios.get(`api?p=radar&p=radar&s=schedule&a=hireracy&a=date_span&date=${currDateParam}&span=1&_=` + currTime).then( res => {
-          this.scheDuleList = res.data.result.data.matchs;
+        this.$axios.get(`api?p=radar&p=radar&s=schedule&a=hireracy&a=date_span&date=${currDateParam}&span=${this.scheduleSpan}&_=` + currTime).then( res => {
+          let tempMatchs = res.data.result.data.matchs;
+          let obj = { date: "", matchs: []},
+              newMatchs = [];
+          tempMatchs.forEach( (item, index) => {
+            if(!obj.date) {
+              obj.date = item.date;
+            }
+            if (item.date !== obj.date) {
+              newMatchs.push(obj);
+              obj = { date: item.date, matchs: []};
+            }
+            obj.matchs.push(item);
+            if(index === tempMatchs.length - 1) {
+              newMatchs.push(obj);
+            }
+          });
+          this.scheDuleList = newMatchs;
         })
       },
-      gotoCompare(index) {
-        let guestName = this.scheDuleList[index].away_name;
-        let hostName = this.scheDuleList[index].home_name;
+      gotoCompare(index, indexC) {
+        let guestName = this.scheDuleList[index].matchs[indexC].away_name;
+        let hostName = this.scheDuleList[index].matchs[indexC].home_name;
         const { href } = this.$router.resolve({
           path: 'compare',
           query: {
@@ -57,6 +83,9 @@
           }
         })
         window.open(href, '_blank');
+      },
+      goToTeamS(url) {
+        this.goToTeam(this, {name: url});
       }
     }
   }
@@ -64,7 +93,7 @@
 
 <style lang="scss" scoped>
   .schedule{
-    margin: 0 auto;
+    margin: 0 auto 50px;
     width: 50%;
     min-width: 1000px;
     .schedule_date{
@@ -85,6 +114,7 @@
           background: #fafafa;
         }
         .schedule_time{
+          padding-left: 12px;
           width: 100px;
           line-height: 52px;
           font-size: 18px;
@@ -97,6 +127,7 @@
           text-align: left;
           span{
             display: inline-block;
+            cursor: pointer;
           }
           .schedule_team_away{
             width: 120px;
@@ -107,6 +138,9 @@
             text-align: center;
             color: #999;
             cursor: pointer;
+          }
+          .schedule_lose{
+            color: #999;
           }
         }
       }

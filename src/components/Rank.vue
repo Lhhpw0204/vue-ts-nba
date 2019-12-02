@@ -7,7 +7,7 @@
           <span class="data">净胜分：</span>
         </li>
         <li v-for="(item, index) in effectRank" :key="index">
-          <span class="team" @click="goToTeam(item.team_name)">{{ index + 1 }}. {{ item.team_name + " (" + item.wins + " - " + item.losses + ")" }}</span>
+          <span class="team" @click="goToTeamS(item.team_name)">{{ index + 1 }}. {{ item.team_name + " (" + item.wins + " - " + item.losses + ")" }}</span>
           <span class="data">{{ item.point_diff }}</span>
         </li>
       </ul>
@@ -17,7 +17,7 @@
           <span class="data">得分：</span>
         </li>
         <li v-for="(item, index) in bounsRank" :key="index">
-          <span class="team" @click="goToTeam(item.team_name)">{{ index + 1 }}. {{ item.team_name + " (" + item.wins + " - " + item.losses + ")" }}</span>
+          <span class="team" @click="goToTeamS(item.team_name)">{{ index + 1 }}. {{ item.team_name + " (" + item.wins + " - " + item.losses + ")" }}</span>
           <span class="data">{{ item.points_for }}</span>
         </li>
       </ul>
@@ -27,7 +27,7 @@
           <span class="data">失分：</span>
         </li>
         <li v-for="(item, index) in loseRank" :key="index">
-          <span class="team" @click="goToTeam(item.team_name)">{{ index + 1 }}. {{ item.team_name + " (" + item.wins + " - " + item.losses + ")" }}</span>
+          <span class="team" @click="goToTeamS(item.team_name)">{{ index + 1 }}. {{ item.team_name + " (" + item.wins + " - " + item.losses + ")" }}</span>
           <span class="data">{{ item.points_against }}</span>
         </li>
       </ul>
@@ -36,7 +36,10 @@
 </template>
 
 <script>
+  import {myMixin} from "../../assets/mixins"
+
   export default {
+    mixins: [myMixin],
     name: "Rank",
     data() {
       return {
@@ -80,14 +83,8 @@
           }
         })
       },
-      goToTeam(url) {
-        const { href } = this.$router.resolve({
-          path: '/team',
-          query: {
-            name: url
-          }
-        })
-        window.open(href, '_blank')
+      goToTeamS(url) {
+        this.goToTeam(this, {name: url});
       }
     }
   }

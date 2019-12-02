@@ -28,7 +28,7 @@
       </li>
       <li v-for="(item, index) in matchList" :key="index">
         <span>{{ item.date }}</span>
-        <span>{{ item.points + '-' + item.opp_score + " " + item.opp_team_name }}</span>
+        <span @click="goToTeamS(item.opp_team_name)">{{ item.points + '-' + item.opp_score + " " + item.opp_team_name }}</span>
         <span>{{ item.host ? "主" : "客" }}</span>
         <span :class="[item.score > item.opp_score ? 'item_win' : 'item_lose']">{{ item.score > item.opp_score ? "胜": "负" }}</span>
         <span>{{ item.field_goals_made + "-" + item.field_goals_att + " (" + item.field_goals_pct + "%" + ")" }}</span>
@@ -48,8 +48,11 @@
 </template>
 
 <script>
+  import {myMixin} from "../../assets/mixins"
   import { mapState } from "vuex"
+
   export default {
+    mixins: [myMixin],
     name: "home",
     data() {
       return {
@@ -121,6 +124,9 @@
           let tempRes = res.data.result.data.teams[0];
           this.teamList = [tempRes];
         }) 
+      },
+      goToTeamS(url) {
+        this.goToTeam(this, {name: url});
       }
     }
   }
@@ -159,6 +165,7 @@
       margin-bottom: 40px;
       li {
         span{
+          cursor: pointer;
           &:nth-child(1),
           &:nth-child(2),
           &:nth-child(5),

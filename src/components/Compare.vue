@@ -1,9 +1,9 @@
 <template>
   <div class="compare">
     <div class="team_input">
-      <input @input="handleEnterTeam($event, 'guest')" placeholder="guest" v-model="guestName"/>
+      <input readonly @input="handleEnterTeam($event, 'guest')" placeholder="guest" v-model="guestName"/>
       <span>VS</span>
-      <input @input="handleEnterTeam($event, 'host')" placeholder="host" v-model="hostName"/>
+      <input readonly @input="handleEnterTeam($event, 'host')" placeholder="host" v-model="hostName"/>
     </div>
     <div class="team_diff">
       <ul class="diff_list">
@@ -11,7 +11,7 @@
           v-for="(item, index) in team_diff_data" 
           :key="index"
           :class="{ 'diff_li_bg': wordMap[item.item] }">
-          <div v-if="wordMap[item.item]">
+          <div v-show="wordMap[item.item]">
             <span class="item_guest">{{ item.guest }}</span>
             <span class="item_item">{{ wordMap[item.item] ? wordMap[item.item] : item.item }}</span>
             <span class="item_host">{{ item.host }}</span>
@@ -24,6 +24,7 @@
 
 <script>
   import tools from "../utils/tools"
+  import { mapState } from "vuex"
 
   export default {
     name: "Rank",
@@ -37,6 +38,7 @@
           steals: "抢断",
           turnovers: "失误",
           blocks: "盖帽",
+          field_goals_att: "场均出手",
           field_goals_pct: "命中率",
           three_points_att: "场均三分得分",
           three_points_pct: "三分命中率",
@@ -50,6 +52,11 @@
         team_diff_data: []
       }
     },
+    computed: {
+      ...mapState({
+        teamsTid: 'teamsTid'
+      })
+    },
     created() {
       document.title = "球队比较-" + this.$route.query.guestName + "vs" + this.$route.query.hostName;
       this.getQuery();
@@ -60,27 +67,31 @@
         this.guestName = query.guestName;
         this.hostName = query.hostName;
 
-        let teamTid = await this.$axios.get('api?p=radar&p=radar&s=team&a=hireracy&_=' + (new Date()).getTime());
-        let tempRes = teamTid.data.result.data;
-        this.teamTidMap = this.getAllTeamTip(tempRes);
-        let guestTid = this.getTeamTid(this.guestName, this.teamTidMap);
-        let hostTid = this.getTeamTid(this.hostName, this.teamTidMap);
+        let guestTid = this.getTeamTid(this.guestName, this.teamsTid);
+        let hostTid = this.getTeamTid(this.hostName, this.teamsTid);
         let guestAjax = this.getSingleTeamData(guestTid);
         let hostAjax = this.getSingleTeamData(hostTid);
         Promise.all([guestAjax, hostAjax]).then( (res) => {
           let guestData = res[0].data.result.data.reg.average,
               hostData = res[1].data.result.data.reg.average;
-          guestData = guestData.sort( tools.selfSort("item"));
-          hostData = hostData.sort( tools.selfSort("item"));
+          // guestData = guestData.sort(tools.selfSort("item"));
+          // hostData = hostData.sort(tools.selfSort("item"));
           for (let i = 0,len = guestData.length;i < len;i ++) {
-            this.team_diff_data.push({
-              item: guestData[i].item,
-              guest: guestData[i].score,
-              host: hostData[i].score
-            })
+            if(guestData[i].item.indexOf("_pct") > 0) {
+              this.team_diff_data.push({
+                item: guestData[i].item,
+                guest: (guestData[i].score * 100).toFixed(2) + "%",
+                host: (hostData[i].score * 100).toFixed(2) + "%"
+              });
+            } else {
+              this.team_diff_data.push({
+                item: guestData[i].item,
+                guest: guestData[i].score,
+                host: hostData[i].score
+              })
+            }
           }
         })
-        console.log(this.team_diff_data)
       },
       getTeamTid(currTeamName ,tids) {
         let currTeamTid = "";
@@ -92,15 +103,6 @@
         }
         return currTeamTid;
       },
-      getAllTeamTip(tar) {
-        let tempTidMap = [];
-        for( let key in tar) {
-          for( let keys in tar[key]) {
-            tempTidMap = tempTidMap.concat(tar[key][keys]);
-          }
-        }
-        return tempTidMap;
-      },
       handleEnterTeam: tools.debounce(function(e, type) {
         let value = e.target.value;
         let team_tip = '';
@@ -111,31 +113,9 @@
         }
         this.getSingleTeamData(team_tip, type)
       }, 1000),
+      // eslint-disable-next-line
       getSingleTeamData(tid, type) {
-        if(type) {
-          this.$axios.get(`/api?p=radar&p=radar&s=leaders&a=team&tid=${tid}&_=` + (new Date()).getTime()).then( res => {
-            this.team_diff_obj[type] = [].concat(res.data.result.data.reg.average);
-
-            for(let i = 0,len = this.team_diff_obj[type].length; i < len; i ++) {
-              let itemS = this.team_diff_obj[type][i].item;
-              this.team_diff_data.push({
-                item: itemS,
-                type: this.team_diff_obj[type][i].score
-              });
-              // if(this.wordMap[this.team_diff_obj.guest_team[i].item]) {
-              //   let itemS = this.team_diff_obj.guest_team[i].item;
-              //   let tempObj = {};
-              //   tempObj.item = itemS;
-              //   tempObj.score = {
-              //       guest: this.team_diff_obj.guest_team[i].score,
-              //       host: this.team_diff_obj.host_team[i].score
-              //   }
-              // }
-            }
-          });
-        } else {
-          return this.$axios.get(`/api?p=radar&p=radar&s=leaders&a=team&tid=${tid}&_=` + (new Date()).getTime());
-        }
+        return this.$axios.get(`/api?p=radar&p=radar&s=leaders&a=team&tid=${tid}&_=` + (new Date()).getTime());
       },
     }
   }
