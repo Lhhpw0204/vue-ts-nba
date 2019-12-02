@@ -9,13 +9,10 @@
       <ul class="diff_list">
         <li 
           v-for="(item, index) in team_diff_data" 
-          :key="index"
-          :class="{ 'diff_li_bg': wordMap[item.item] }">
-          <div v-show="wordMap[item.item]">
-            <span class="item_guest">{{ item.guest }}</span>
-            <span class="item_item">{{ wordMap[item.item] ? wordMap[item.item] : item.item }}</span>
-            <span class="item_host">{{ item.host }}</span>
-          </div>
+          :key="index">
+          <span :class="['item_guest', calItem(item, item.guest, item.host)]">{{ item.guest }}</span>
+          <span class="item_item">{{ wordMap[item.item] ? wordMap[item.item] : item.item }}</span>
+          <span :class="['item_host', calItem(item, item.host, item.guest)]">{{ item.host }}</span>
         </li>
       </ul>
     </div>
@@ -91,6 +88,9 @@
               })
             }
           }
+          this.team_diff_data = this.team_diff_data.filter( item => {
+            return this.wordMap[item.item]
+          })
         })
       },
       getTeamTid(currTeamName ,tids) {
@@ -117,6 +117,13 @@
       getSingleTeamData(tid, type) {
         return this.$axios.get(`/api?p=radar&p=radar&s=leaders&a=team&tid=${tid}&_=` + (new Date()).getTime());
       },
+      calItem(item, guest, host) {
+        if(item.item === 'turnovers') {
+          return item.guest === item.host ? " " : guest > host ? "item_lose" : "item_win";
+        } else {
+          return item.guest === item.host ? " " : guest > host ? "item_win" : "item_lose";
+        }
+      }
     }
   }
 </script>
@@ -155,20 +162,25 @@
           display: flex;
           justify-content: center;
           align-items: center;
-          div{
-            padding: 4px 0 ;
-            span{
-              color: #000;
-            }
-            .item_guest{
+          padding: 4px 0 ;
+          span{
+            color: #616161;
+            &.item_guest{
               text-align: right;
               width: 100px;
             }
-            .item_host{
+            &.item_win{
+              color: #6aa9e8;
+              font-weight: bold;
+            }
+            &.item_lose{
+              color: #ec6a86;
+            }
+            &.item_host{
               text-align: left;
               width: 100px;
             }
-            .item_item{
+            &.item_item{
               display: inline-block;
               width: 240px;
             }
