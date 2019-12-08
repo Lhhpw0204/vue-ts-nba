@@ -11,7 +11,9 @@
           v-for="(item, index) in team_diff_data" 
           :key="index">
           <span :class="['item_guest', calItem(item, item.guest, item.host)]">{{ item.guest }}</span>
-          <span class="item_item">{{ wordMap[item.item] ? wordMap[item.item] : item.item }}</span>
+          <span class="item_item">{{ wordMap[item.item] ? wordMap[item.item] : item.item }}
+            <span>{{" (" + (item.host - item.guest).toFixed(2) + ")"}}</span>
+          </span>
           <span :class="['item_host', calItem(item, item.host, item.guest)]">{{ item.host }}</span>
         </li>
       </ul>

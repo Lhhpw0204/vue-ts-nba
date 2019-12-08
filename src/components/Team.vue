@@ -44,6 +44,9 @@
         <span>{{ item.personal_fouls }}</span>
       </li>
     </ul>
+    <ul class="match_page">
+      <li v-for="(item, index) in pageNum" :key="index" @click="jump(item)" :class="[currPage === (index + 1) ? 'active' : '']">{{ item }}</li>
+    </ul>
   </div>
 </template>
 
@@ -91,7 +94,10 @@
           {type: "犯规"}
         ],
         teamList: [],
-        matchList: []
+        matchList: [],
+        currPage: 1,
+        teamTid: "",
+        pageNum:[]
       }
     },
     computed: {
@@ -108,6 +114,7 @@
         let teamName = this.$route.query.name;
         for(let i = 0,len = this.teamsTid.length;i < len; i ++) {
           if(teamName === this.teamsTid[i].team_name_cn) {
+            this.teamTid = this.teamsTid[i].tid;
             this.getTeamMatchData(this.teamsTid[i].tid);
             this.getTeamAvarageData(this.teamsTid[i].tid);
             break;
@@ -115,8 +122,12 @@
         }
       },
       getTeamMatchData(tid) {
-        this.$axios.get(`api?p=radar&p=radar&s=summary&a=team&tid=${tid}&season=2019&season_type=reg&page=1&limit=20&_=` + (new Date()).getTime()).then( res => {
-          this.matchList = res.data.result.data.games
+        this.$axios.get(`api?p=radar&p=radar&s=summary&a=team&tid=${tid}&season=2019&season_type=reg&page=${this.currPage}&limit=20&_=` + (new Date()).getTime()).then( res => {
+          this.matchList = res.data.result.data.games;
+          let matchTotal = Math.ceil(res.data.result.data.paginator.total/20);
+          this.pageNum = new Array(matchTotal).fill().map( (_, index) => {
+            return index + 1;
+          });
         })
       },
       getTeamAvarageData(tid) {
@@ -127,6 +138,10 @@
       },
       goToTeamS(url) {
         this.goToTeam(this, {name: url});
+      },
+      jump(page) {
+        this.currPage = page;
+        this.getTeamMatchData(this.teamTid);
       }
     }
   }
@@ -185,6 +200,25 @@
           &:nth-child(3){
             flex-basis: 110px;
           }
+        }
+      }
+    }
+    .match_page{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      li{
+        display: inline-block;
+        margin: 0 1px;
+        width: 36px;
+        height: 36px;
+        line-height: 36px;
+        text-align: center;
+        border: solid 1px rgba(0,0,0,0.3);
+        cursor: pointer;
+        &.active{
+          background: #428cdb;
+          color: #fff;
         }
       }
     }
