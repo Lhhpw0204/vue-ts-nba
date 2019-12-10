@@ -205,11 +205,12 @@
     }
     .match_page{
       display: flex;
+      margin-bottom: 50px;
       align-items: center;
       justify-content: center;
       li{
         display: inline-block;
-        margin: 0 1px;
+        margin: 0 2px;
         width: 36px;
         height: 36px;
         line-height: 36px;
