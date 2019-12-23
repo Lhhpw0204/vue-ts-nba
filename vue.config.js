@@ -1,6 +1,7 @@
-const path = require('path');
+// const path = require('path');
 
 module.exports = {
+    publicPath: './',
     devServer: {
         open: true,
         hot: true,
