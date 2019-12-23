@@ -8,12 +8,12 @@
           <p class="schedule_team">
             <span :class="['schedule_team_away', itemC.away_score ? itemC.away_score > itemC.home_score ? 'schedule_win' : 'schedule_lose' : '']">
               <span @click="goToTeamS(itemC.away_name)">{{itemC.away_name}}</span>
-              <span>{{itemC.away_score}}</span>
+              <span v-show="itemC.away_score">{{itemC.away_score}}</span>
             </span>
             <span class="schedule_team_vs" @click="gotoCompare(index,indexC)"> —— </span>
             <span :class="['schedule_team_home', itemC.away_score ? itemC.away_score > itemC.home_score ? 'schedule_lose' : 'schedule_win' : '']">
               <span @click="goToTeamS(itemC.home_name)">{{itemC.home_name}}</span>
-              <span>{{itemC.home_score}}</span>
+              <span v-show="itemC.home_score">{{itemC.home_score}}</span>
             </span>
           </p>
         </li>
@@ -31,7 +31,7 @@
     data() {
       return {
         scheDuleList: [],
-        scheduleSpan: 2
+        scheduleSpan: 6
       }
     },
     created() {
